@@ -6,72 +6,74 @@
     <title>IPHyper - Network Analyzer</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <!-- Mapbox GL JS CSS -->
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.css" rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Inter Font (Vercel Style) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --bg-dark: #0f172a;      /* Slate 900 */
-            --bg-card: #1e293b;      /* Slate 800 */
-            --bg-hover: #334155;     /* Slate 700 */
-            --border-color: #334155; /* Slate 700 */
-            --primary: #6366f1;      /* Indigo 500 */
-            --primary-glow: rgba(99, 102, 241, 0.5);
-            --text-main: #f1f5f9;    /* Slate 100 */
-            --text-muted: #94a3b8;   /* Slate 400 */
+            --bg-dark: #000000;      /* Pure Black */
+            --bg-card: #111111;      /* Almost Black */
+            --bg-hover: #333333;     /* Dark Grey */
+            --border-color: #333333; /* Subtle Border */
+            --primary: #ffffff;      /* White for high contrast */
+            --accent: #3291ff;       /* Vercel Blue for accents */
+            --text-main: #ffffff;    /* White */
+            --text-muted: #888888;   /* Grey */
         }
 
         body {
             background-color: var(--bg-dark);
             color: var(--text-main);
+            font-family: 'Inter', sans-serif;
         }
 
         #map {
             height: 100%;
             width: 100%;
             z-index: 1;
-            background-color: var(--bg-dark);
+            background-color: #000000;
         }
 
         /* Custom Dark Scrollbar */
         .custom-scroll::-webkit-scrollbar {
-            width: 8px;
+            width: 6px;
         }
         .custom-scroll::-webkit-scrollbar-track {
             background: var(--bg-dark);
         }
         .custom-scroll::-webkit-scrollbar-thumb {
-            background: #475569;
-            border-radius: 4px;
+            background: #333;
+            border-radius: 3px;
         }
         .custom-scroll::-webkit-scrollbar-thumb:hover {
-            background: #64748b;
+            background: #555;
         }
 
         .loader {
-            border: 3px solid rgba(255,255,255,0.1);
+            border: 2px solid #333;
             border-radius: 50%;
-            border-top: 3px solid var(--primary);
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
+            border-top: 2px solid var(--text-main);
+            width: 18px;
+            height: 18px;
+            animation: spin 0.8s linear infinite;
         }
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
 
-        /* Custom Marker Pulse Animation */
+        /* Minimal Marker Pulse */
         .marker-pulse {
             position: relative;
-            width: 14px;
-            height: 14px;
-            background: var(--primary);
+            width: 12px;
+            height: 12px;
+            background: var(--text-main);
             border-radius: 50%;
-            border: 2px solid #fff;
-            box-shadow: 0 0 10px var(--primary), 0 0 20px var(--primary);
+            box-shadow: 0 0 0 1px #000;
         }
         .marker-pulse::after {
             content: '';
@@ -82,46 +84,30 @@
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            border: 1px solid var(--primary);
-            animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+            border: 1px solid var(--text-main);
+            animation: pulse-ring 2.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
         }
         @keyframes pulse-ring {
-            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
-            100% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0.8; }
+            100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
         }
 
-        /* Custom Popup Styling */
-        .leaflet-popup-content-wrapper {
-            background-color: var(--bg-card) !important;
+        /* Vercel Style Popup */
+        .mapboxgl-popup-content {
+            background-color: var(--bg-dark) !important;
             border: 1px solid var(--border-color) !important;
             color: var(--text-main) !important;
-            border-radius: 0.5rem !important;
-            box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.7) !important;
+            border-radius: 6px !important;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.8) !important;
             padding: 0 !important;
             min-width: 280px;
-            pointer-events: auto !important;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden; /* Fixes corner bugs */
         }
-        .leaflet-popup {
-            pointer-events: none !important;
-        }
-        .leaflet-popup-tip-container {
-            pointer-events: auto !important;
-        }
-        .leaflet-popup-tip {
-            background-color: var(--bg-card) !important;
-            border: 1px solid var(--border-color) !important;
-            pointer-events: auto !important;
-        }
-        .leaflet-popup-content {
-            margin: 0 !important;
-            line-height: 1.5;
-            pointer-events: auto !important;
-        }
-        .leaflet-popup-close-button {
-            display: none; 
-        }
-        .custom-div-icon {
-            pointer-events: auto !important;
+        
+        /* Remove Tip for Cleaner "Floating" Look */
+        .mapboxgl-popup-tip {
+            display: none !important;
         }
 
         /* Mobile Adjustments */
@@ -134,19 +120,19 @@
 <body class="h-screen flex flex-col overflow-hidden font-sans antialiased selection:bg-indigo-500 selection:text-white">
 
     <!-- Header -->
-    <header class="bg-slate-800 border-b border-slate-700 shadow-lg z-30 px-4 py-3 md:px-6 md:py-4 flex justify-between items-center shrink-0">
+    <header class="bg-black border-b border-[#333] shadow-sm z-30 px-4 py-3 md:px-6 md:py-4 flex justify-between items-center shrink-0 backdrop-blur-md bg-opacity-80">
         <div class="flex items-center gap-3">
-            <button onclick="toggleSidebar()" class="md:hidden text-slate-300 hover:text-white p-1">
+            <button onclick="toggleSidebar()" class="md:hidden text-[#888] hover:text-white p-1 transition-colors">
                 <i class="fa-solid fa-bars text-xl"></i>
             </button>
-            <div class="w-8 h-8 rounded-lg bg-indigo-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
+            <div class="w-8 h-8 rounded-md bg-white text-black flex items-center justify-center shadow-sm">
                 <i class="fa-solid fa-bolt"></i>
             </div>
-            <h1 class="text-lg font-bold tracking-tight text-white hidden md:block" data-i18n="appTitle">IPHyper <span class="text-xs font-normal text-slate-400 ml-1 px-2 py-0.5 rounded-full bg-slate-700 border border-slate-600">Lite</span></h1>
+            <h1 class="text-lg font-bold tracking-tight text-white hidden md:block" data-i18n="appTitle">IPHyper <span class="text-[10px] font-medium text-[#666] ml-1 px-2 py-0.5 rounded-full border border-[#333] uppercase tracking-wider">Lite</span></h1>
         </div>
         
         <div class="flex items-center gap-3">
-            <select id="lang-selector" onchange="changeLanguage(this.value)" class="bg-slate-900 text-slate-300 text-xs border border-slate-700 rounded px-2 py-1 outline-none focus:border-indigo-500">
+            <select id="lang-selector" onchange="changeLanguage(this.value)" class="bg-black text-[#888] text-xs border border-[#333] rounded px-2 py-1 outline-none focus:border-white focus:text-white transition-colors cursor-pointer hover:border-[#555]">
                 <option value="en">English</option>
                 <option value="tr">Türkçe</option>
                 <option value="es">Español</option>
@@ -162,11 +148,11 @@
                 <option value="id">Bahasa Indonesia</option>
             </select>
 
-            <button onclick="openInputModal()" class="md:hidden text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-lg shadow-sm" data-i18n="addBtn">
+            <button onclick="openInputModal()" class="md:hidden text-xs bg-white text-black hover:bg-[#ddd] px-3 py-1.5 rounded-md shadow-sm font-medium transition-colors" data-i18n="addBtn">
                 <i class="fa-solid fa-plus"></i> Add
             </button>
-            <div class="text-xs font-mono text-slate-400 bg-slate-900 px-3 py-1.5 rounded border border-slate-700">
-                <span id="status-count" class="text-indigo-400 font-bold">0</span> / <span id="total-count">0</span>
+            <div class="text-xs font-mono text-[#666] bg-[#111] px-3 py-1.5 rounded border border-[#333]">
+                <span id="status-count" class="text-white font-bold">0</span> / <span id="total-count">0</span>
             </div>
         </div>
     </header>
@@ -175,32 +161,32 @@
     <div class="flex flex-1 h-full overflow-hidden relative">
         
         <!-- Sidebar -->
-        <aside id="sidebar" class="absolute md:relative inset-y-0 left-0 w-3/4 md:w-80 bg-slate-800 border-r border-slate-700 flex flex-col z-20 shadow-2xl md:shadow-xl transition-transform duration-300 mobile-sidebar-hidden md:transform-none">
-            <div class="p-4 border-b border-slate-700 bg-slate-800/50 flex justify-between items-center">
+        <aside id="sidebar" class="absolute md:relative inset-y-0 left-0 w-3/4 md:w-80 bg-black border-r border-[#333] flex flex-col z-20 shadow-2xl md:shadow-none transition-transform duration-300 mobile-sidebar-hidden md:transform-none">
+            <div class="p-4 border-b border-[#333] bg-black flex justify-between items-center">
                 <div>
-                    <h2 class="font-semibold text-slate-200 text-sm" data-i18n="targetList">Target List</h2>
-                    <p class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mt-1" data-i18n="processQueue">Process Queue</p>
+                    <h2 class="font-semibold text-white text-sm" data-i18n="targetList">Target List</h2>
+                    <p class="text-[10px] uppercase tracking-wider text-[#666] font-bold mt-1" data-i18n="processQueue">Process Queue</p>
                 </div>
-                <button onclick="toggleSidebar()" class="md:hidden text-slate-400 hover:text-white p-2">
+                <button onclick="toggleSidebar()" class="md:hidden text-[#666] hover:text-white p-2 transition-colors">
                     <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
-                <button onclick="openInputModal()" class="hidden md:block text-slate-400 hover:text-white transition-colors p-2 rounded hover:bg-slate-700">
+                <button onclick="openInputModal()" class="hidden md:block text-[#666] hover:text-white transition-colors p-2 rounded hover:bg-[#111]">
                     <i class="fa-solid fa-pen-to-square"></i>
                 </button>
             </div>
             
             <div id="ip-list-container" class="flex-1 overflow-y-auto custom-scroll p-3 space-y-2">
-                <div class="flex flex-col items-center justify-center h-40 text-slate-500">
+                <div class="flex flex-col items-center justify-center h-40 text-[#444]">
                     <i class="fa-solid fa-layer-group text-3xl mb-3 opacity-20"></i>
                     <p class="text-xs" data-i18n="waitingData">Waiting for data...</p>
                 </div>
             </div>
 
-            <div class="p-4 border-t border-slate-700 bg-slate-800 flex gap-2">
-                <button onclick="openInputModal()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-200 font-medium py-2 px-2 rounded-lg text-xs border border-slate-600 transition-colors">
+            <div class="p-4 border-t border-[#333] bg-black flex gap-2">
+                <button onclick="openInputModal()" class="flex-1 bg-black hover:bg-[#111] text-white font-medium py-2 px-2 rounded-md text-xs border border-[#333] hover:border-white transition-all duration-200">
                     <i class="fa-solid fa-pen mr-1"></i> <span data-i18n="editBtn">Edit</span>
                 </button>
-                <button onclick="startProcessing()" id="refresh-btn" class="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-200 font-medium py-2 px-2 rounded-lg text-xs border border-slate-600 disabled:opacity-50 transition-colors">
+                <button onclick="startProcessing()" id="refresh-btn" class="flex-1 bg-white hover:bg-[#f0f0f0] text-black font-medium py-2 px-2 rounded-md text-xs border border-white hover:border-[#ddd] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200">
                     <i class="fa-solid fa-rotate-right mr-1"></i> <span data-i18n="retryBtn">Retry</span>
                 </button>
             </div>
@@ -209,14 +195,14 @@
         <div id="sidebar-overlay" onclick="toggleSidebar()" class="absolute inset-0 bg-black/50 z-10 hidden md:hidden backdrop-blur-sm transition-opacity"></div>
 
         <!-- Map -->
-        <main class="flex-1 relative bg-slate-900 w-full h-full">
+        <main class="flex-1 relative bg-black w-full h-full">
             <div id="map"></div>
             
-            <div class="absolute bottom-6 right-6 bg-slate-800/95 backdrop-blur border border-slate-700 p-4 rounded-lg shadow-2xl z-[500] max-w-xs hidden md:block">
-                <h3 class="font-bold text-slate-200 mb-2 text-xs uppercase tracking-wide flex items-center gap-2">
-                    <i class="fa-solid fa-shield-halved text-indigo-500"></i> <span data-i18n="systemStatus">System Status</span>
+            <div class="absolute bottom-1 right-1 bg-black/80 backdrop-blur-md border border-[#333] p-4 rounded-lg shadow-2xl z-[500] max-w-xs hidden md:block">
+                <h3 class="font-bold text-white mb-2 text-xs uppercase tracking-wide flex items-center gap-2">
+                    <i class="fa-solid fa-shield-halved text-white"></i> <span data-i18n="systemStatus">System Status</span>
                 </h3>
-                <p class="text-[11px] text-slate-400 leading-relaxed" data-i18n="statusDesc">
+                <p class="text-[11px] text-[#888] leading-relaxed" data-i18n="statusDesc">
                     Hover over markers to view detailed data provided by ipwho.is.
                 </p>
             </div>
@@ -224,26 +210,26 @@
     </div>
 
     <!-- Input Modal -->
-    <div id="input-modal" class="fixed inset-0 z-[3000] bg-slate-950/80 flex items-center justify-center backdrop-blur-sm transition-opacity duration-300 p-4 hidden">
-        <div class="bg-slate-800 border border-slate-700 rounded-xl shadow-2xl w-full max-w-lg overflow-hidden transform transition-all scale-100 p-6">
+    <div id="input-modal" class="fixed inset-0 z-[3000] bg-black/90 flex items-center justify-center backdrop-blur-md transition-opacity duration-300 p-4 hidden">
+        <div class="bg-black border border-[#333] rounded-xl shadow-2xl w-full max-w-lg overflow-hidden transform transition-all scale-100 p-6">
             <div class="text-center mb-6">
-                <div class="bg-slate-700 w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4 border border-slate-600">
-                    <i class="fa-solid fa-terminal text-indigo-400 text-xl"></i>
+                <div class="bg-[#111] w-12 h-12 rounded-md flex items-center justify-center mx-auto mb-4 border border-[#333]">
+                    <i class="fa-solid fa-terminal text-white text-xl"></i>
                 </div>
                 <h2 class="text-xl font-bold text-white" data-i18n="defineTarget">Define Targets</h2>
-                <p class="text-slate-400 text-xs mt-2" data-i18n="enterIps">Enter IPv4 addresses to analyze.</p>
+                <p class="text-[#666] text-xs mt-2" data-i18n="enterIps">Enter IPv4 addresses to analyze.</p>
             </div>
 
-            <textarea id="ip-input-textarea" class="w-full h-40 p-4 bg-slate-900 border border-slate-700 rounded-lg focus:outline-none focus:border-indigo-500 text-xs font-mono text-slate-300 mb-5 resize-none placeholder-slate-600" placeholder="8.8.8.8&#10;1.1.1.1, 192.168.1.1"></textarea>
+            <textarea id="ip-input-textarea" class="w-full h-40 p-4 bg-[#050505] border border-[#333] rounded-md focus:outline-none focus:border-white focus:ring-1 focus:ring-white text-xs font-mono text-[#ddd] mb-5 resize-none placeholder-[#444] transition-colors" placeholder="8.8.8.8&#10;1.1.1.1, 192.168.1.1"></textarea>
 
             <div class="flex flex-col gap-3">
-                <button onclick="processInputAndStart()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-4 rounded-lg shadow-lg flex items-center justify-center gap-2 text-sm transition-all active:scale-95">
+                <button onclick="processInputAndStart()" class="w-full bg-white hover:bg-[#ddd] text-black font-bold py-3 px-4 rounded-md shadow-lg flex items-center justify-center gap-2 text-sm transition-all active:scale-95">
                     <i class="fa-solid fa-play"></i> <span data-i18n="startAnalysis">Start Analysis</span>
                 </button>
-                <button onclick="fillDemoData()" class="text-xs text-slate-500 hover:text-indigo-400 transition cursor-pointer py-1" data-i18n="loadDemo">
+                <button onclick="fillDemoData()" class="text-xs text-[#666] hover:text-white transition cursor-pointer py-1" data-i18n="loadDemo">
                     Load demo data
                 </button>
-                <button onclick="closeInputModal()" class="text-xs text-slate-500 hover:text-slate-300 mt-2" data-i18n="cancelBtn">Cancel</button>
+                <button onclick="closeInputModal()" class="text-xs text-[#444] hover:text-[#888] mt-2" data-i18n="cancelBtn">Cancel</button>
             </div>
         </div>
     </div>
@@ -267,8 +253,8 @@
         </div>
     </div>
 
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- Mapbox GL JS -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.js"></script>
 
     <script>
         // --- CONFIGURATION ---
@@ -692,7 +678,7 @@
         let currentIpList = [];
         let map;
         let markers = {}; 
-        let bounds = L.latLngBounds(); 
+        let bounds; // Initialized in initMap
         let locationGroups = {}; 
 
         // --- CACHE FUNCTIONS ---
@@ -795,17 +781,63 @@
         // --- MAP FUNCTIONS ---
 
         function initMap() {
-            map = L.map('map', {
-                zoomControl: false 
-            }).setView([20, 0], 2);
+            mapboxgl.accessToken = 'pk.eyJ1IjoicXVhZmxvdyIsImEiOiJjbWkxa25zd20xNHpoMmtzZm9zdHl5c3MxIn0.yZfaJGoMwh-l-TVFxEXR7A';
+            
+            map = new mapboxgl.Map({
+                container: 'map',
+                style: 'mapbox://styles/mapbox/dark-v11',
+                center: [0, 20],
+                zoom: 2,
+                projection: 'globe',
+                antialias: true
+            });
 
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                attribution: '&copy; OpenStreetMap &copy; CARTO',
-                subdomains: 'abcd',
-                maxZoom: 20
-            }).addTo(map);
+            // Listen for style load errors
+            map.on('error', (e) => {
+                console.error('Map style load error:', e);
+            });
 
-            L.control.zoom({ position: 'topright' }).addTo(map);
+            // Modern dark theme with stars and better colors
+            map.on('load', () => {
+                console.log('Map style loaded successfully');
+                
+                // Vercel Style: Minimalist Deep Dark with Stars
+                map.setFog({
+                    'color': '#000000', 
+                    'high-color': '#111111', 
+                    'horizon-blend': 0.2,
+                    'space-color': 'rgb(11, 13, 23)', // Deep space blue-black to make stars pop
+                    'star-intensity': 0.8 // Stars are back! ✨
+                });
+                
+                // Customize water color - almost black
+                try {
+                    map.setPaintProperty('water', 'fill-color', '#050505');
+                } catch(e) {
+                    console.log('Could not set water color');
+                }
+                
+                // Add subtle glow to globe
+                map.setSky({
+                    'sky-color': '#000000',
+                    'sky-horizon-blend': 0.1,
+                    'horizon-color': '#111111',
+                    'horizon-fog-blend': 0.1,
+                    'fog-color': '#000000',
+                    'fog-ground-blend': 0.1,
+                    'atmosphere-blend': ['interpolate', ['linear'], ['zoom'], 0, 1, 10, 0.2]
+                });
+            });
+
+            // Enable smooth transitions
+            map.on('style.load', () => {
+                map.setFog({});  // Ensure fog is applied
+            });
+
+            map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right');
+            
+            // Initialize bounds
+            bounds = new mapboxgl.LngLatBounds();
         }
 
         function initList() {
@@ -813,22 +845,22 @@
             container.innerHTML = ''; 
             
             if (currentIpList.length === 0) {
-                container.innerHTML = `<div class="flex flex-col items-center justify-center h-40 text-slate-500"><i class="fa-solid fa-list-ul text-2xl mb-3 opacity-20"></i><p class="text-xs">${t('emptyList')}</p></div>`;
+                container.innerHTML = `<div class="flex flex-col items-center justify-center h-40 text-[#444]"><i class="fa-solid fa-list-ul text-2xl mb-3 opacity-20"></i><p class="text-xs">${t('emptyList')}</p></div>`;
                 return;
             }
 
             currentIpList.forEach((ip) => {
                 const item = document.createElement('div');
                 item.id = `ip-item-${ip.replace(/\./g, '-')}`;
-                item.className = "bg-slate-700/30 border border-slate-700/50 p-3 rounded-lg flex items-center justify-between hover:bg-slate-700 hover:border-slate-600 cursor-pointer transition-all duration-200 group";
+                item.className = "bg-[#0a0a0a] border border-[#222] p-3 rounded-md flex items-center justify-between hover:bg-[#111] hover:border-[#444] cursor-pointer transition-all duration-200 group";
                 item.onclick = () => zoomToIP(ip);
                 
                 item.innerHTML = `
                     <div class="flex flex-col">
-                        <span class="font-mono text-xs font-semibold text-slate-300 group-hover:text-white transition-colors">${ip}</span>
-                        <span class="text-[10px] text-slate-500 location-text mt-0.5">${t('waiting')}</span>
+                        <span class="font-mono text-xs font-semibold text-[#ccc] group-hover:text-white transition-colors">${ip}</span>
+                        <span class="text-[10px] text-[#666] location-text mt-0.5">${t('waiting')}</span>
                     </div>
-                    <div class="status-icon text-slate-600 text-xs">
+                    <div class="status-icon text-[#444] text-xs">
                         <i class="fa-regular fa-circle"></i>
                     </div>
                 `;
@@ -847,9 +879,9 @@
             if (success) {
                 const locationStr = `${data.city}, ${data.country_code}`;
                 locText.innerText = locationStr;
-                locText.className = "text-[10px] text-emerald-400 location-text font-medium";
-                item.classList.add('border-emerald-900/30', 'bg-emerald-900/10');
-                iconContainer.innerHTML = `<i class="fa-solid fa-check text-emerald-500"></i>`;
+                locText.className = "text-[10px] text-white location-text font-medium";
+                item.classList.add('border-white/20', 'bg-[#111]');
+                iconContainer.innerHTML = `<i class="fa-solid fa-check text-white"></i>`;
                 
                 const locKey = `${data.latitude},${data.longitude}`;
                 if (!locationGroups[locKey]) {
@@ -862,8 +894,8 @@
                 
             } else {
                 locText.innerText = t('notFound');
-                locText.className = "text-[10px] text-rose-500 location-text";
-                iconContainer.innerHTML = `<i class="fa-solid fa-xmark text-rose-500"></i>`;
+                locText.className = "text-[10px] text-red-500 location-text";
+                iconContainer.innerHTML = `<i class="fa-solid fa-xmark text-red-500"></i>`;
             }
         }
 
@@ -872,20 +904,21 @@
             const item = document.getElementById(`ip-item-${safeId}`);
             if (!item) return;
             const iconContainer = item.querySelector('.status-icon');
-            if (isLoading) iconContainer.innerHTML = `<div class="loader w-3 h-3"></div>`;
+            if (isLoading) iconContainer.innerHTML = `<div class="loader w-3 h-3 border-[#444] border-t-white"></div>`;
         }
 
         // Updated Marker Logic: Rich Detail Popup with Hover Bridge + SCROLL
         function updateMarkers(locKey, lat, lng) {
+            // Remove existing marker for this location if it exists
             if (markers[locKey]) {
-                map.removeLayer(markers[locKey]);
+                markers[locKey].remove();
             }
 
             const group = locationGroups[locKey];
             if (!group || group.length === 0) return;
 
             // Generate Rich Content - Country info once, then IPs
-            let content = `<div class="p-3 min-w-[300px] text-left max-h-[300px] overflow-y-auto custom-scroll">`;
+            let content = `<div class="p-3 min-w-[300px] text-left max-h-[300px] overflow-y-auto custom-scroll bg-black text-white">`;
             
             // First item - show location header
             if (group.length > 0) {
@@ -893,21 +926,21 @@
                 
                 // Location Header (shown once)
                 content += `
-                    <div class="border-b border-slate-700 pb-3 mb-3">
+                    <div class="border-b border-[#333] pb-3 mb-3">
                         <!-- Header with Flag and Country -->
                         <div class="flex items-center gap-2 mb-2">
-                            ${firstData.flag ? `<img src="${firstData.flag.img}" class="w-6 h-4 object-cover rounded shadow-sm border border-slate-600" alt="${firstData.country_code}">` : ''}
+                            ${firstData.flag ? `<img src="${firstData.flag.img}" class="w-6 h-4 object-cover rounded-sm shadow-sm border border-[#333]" alt="${firstData.country_code}">` : ''}
                             <span class="font-bold text-white text-sm">${firstData.city}, ${firstData.country}</span>
-                            <span class="text-[10px] text-slate-400 font-mono ml-auto">${firstData.continent_code}</span>
+                            <span class="text-[10px] text-[#888] font-mono ml-auto">${firstData.continent_code}</span>
                         </div>
                         
                         <!-- Grid Details (Location Info) -->
                         <div class="grid grid-cols-2 gap-x-2 gap-y-1 text-[10px]">
-                            <div class="text-slate-400"><span class="text-slate-500">${t('lbl_region')}:</span> ${firstData.region}</div>
-                            <div class="text-slate-400"><span class="text-slate-500">${t('lbl_postal')}:</span> ${firstData.postal}</div>
-                            <div class="text-slate-400"><span class="text-slate-500">${t('lbl_timezone')}:</span> ${firstData.timezone.id}</div>
-                            <div class="text-slate-400"><span class="text-slate-500">UTC:</span> ${firstData.timezone.utc}</div>
-                            <div class="col-span-2 text-slate-500 border-t border-slate-700/50 pt-1 mt-1 font-mono text-[9px] text-center">
+                            <div class="text-[#666]"><span class="text-[#444]">${t('lbl_region')}:</span> ${firstData.region}</div>
+                            <div class="text-[#666]"><span class="text-[#444]">${t('lbl_postal')}:</span> ${firstData.postal}</div>
+                            <div class="text-[#666]"><span class="text-[#444]">${t('lbl_timezone')}:</span> ${firstData.timezone.id}</div>
+                            <div class="text-[#666]"><span class="text-[#444]">UTC:</span> ${firstData.timezone.utc}</div>
+                            <div class="col-span-2 text-[#444] border-t border-[#222] pt-1 mt-1 font-mono text-[9px] text-center">
                                 ${firstData.latitude}, ${firstData.longitude}
                             </div>
                         </div>
@@ -920,18 +953,18 @@
                     const isLast = index === group.length - 1;
                     
                     content += `
-                        <div class="${isLast ? '' : 'border-b border-slate-700 pb-3 mb-3'}">
+                        <div class="${isLast ? '' : 'border-b border-[#222] pb-3 mb-3'}">
                             <!-- IP & Org -->
-                            <div class="bg-slate-800/50 p-2 rounded border border-slate-700/50">
+                            <div class="bg-[#111] p-2 rounded-md border border-[#222] hover:border-[#444] transition-colors">
                                  <div class="flex items-center justify-between mb-1">
-                                    <span class="font-mono text-xs text-indigo-400 font-bold">${item.ip}</span>
-                                    <span class="text-[10px] text-slate-500">ASN: ${d.connection.asn || '-'}</span>
+                                    <span class="font-mono text-xs text-white font-bold">${item.ip}</span>
+                                    <span class="text-[10px] text-[#666]">ASN: ${d.connection.asn || '-'}</span>
                                  </div>
-                                 <div class="text-[10px] text-slate-300 truncate" title="${d.connection.org}">
-                                    <i class="fa-solid fa-building text-slate-500 mr-1"></i> ${d.connection.org || d.connection.isp}
+                                 <div class="text-[10px] text-[#aaa] truncate" title="${d.connection.org}">
+                                    <i class="fa-solid fa-building text-[#444] mr-1"></i> ${d.connection.org || d.connection.isp}
                                  </div>
-                                 <div class="text-[10px] text-slate-400 truncate mt-0.5">
-                                    <i class="fa-solid fa-globe text-slate-500 mr-1"></i> ${d.connection.domain || '-'}
+                                 <div class="text-[10px] text-[#888] truncate mt-0.5">
+                                    <i class="fa-solid fa-globe text-[#444] mr-1"></i> ${d.connection.domain || '-'}
                                  </div>
                             </div>
                         </div>
@@ -941,78 +974,94 @@
             
             content += `</div>`;
             
-            const icon = L.divIcon({
-                className: 'custom-div-icon',
-                html: `<div class="marker-pulse"></div>`,
-                iconSize: [14, 14],
-                iconAnchor: [7, 7]
-            });
+            // Create Marker Element
+            const el = document.createElement('div');
+            el.className = 'marker-pulse';
+            // Ensure pointer events work
+            el.style.cursor = 'pointer';
 
-            const marker = L.marker([lat, lng], { icon: icon }).addTo(map);
-            
-            const popup = L.popup({
-                offset: [0, 0],
+            // Create Popup
+            const popup = new mapboxgl.Popup({
+                offset: 25, // Increased offset for floating look (since tip is removed)
                 closeButton: false,
-                autoClose: false,
                 closeOnClick: false,
-                autoPan: false,
-                className: 'custom-popup-hover' 
-            }).setContent(content);
+                maxWidth: '350px'
+            }).setHTML(content);
 
-            marker.bindPopup(popup);
+            // Create Marker
+            const marker = new mapboxgl.Marker(el)
+                .setLngLat([lng, lat])
+                .setPopup(popup)
+                .addTo(map);
 
+            // Hover Logic
             let timer;
             let isHoveringPopup = false;
             let isHoveringMarker = false;
 
-            marker.on('mouseover', function () {
+            // Marker Events (DOM element events)
+            el.addEventListener('mouseenter', () => {
                 isHoveringMarker = true;
                 if (timer) clearTimeout(timer);
-                this.openPopup();
+                marker.togglePopup(); // Open if closed
             });
 
-            marker.on('mouseout', function () {
+            el.addEventListener('mouseleave', () => {
                 isHoveringMarker = false;
                 timer = setTimeout(() => {
                     if (!isHoveringPopup && !isHoveringMarker) {
-                        this.closePopup();
+                        marker.getPopup().remove(); // Close popup
                     }
-                }, 200); 
+                }, 300);
             });
 
-            marker.on('popupopen', function (e) {
-                const wrapper = e.popup.getElement(); 
-
-                if (wrapper) {
-                    wrapper.addEventListener('mouseenter', () => {
-                        isHoveringPopup = true;
-                        if (timer) clearTimeout(timer);
-                    });
-                    
-                    wrapper.addEventListener('mouseleave', () => {
-                        isHoveringPopup = false;
-                        timer = setTimeout(() => {
-                            if (!isHoveringPopup && !isHoveringMarker) {
-                                marker.closePopup();
-                            }
-                        }, 200);
-                    });
-                }
-            });
-
-            marker.on('popupclose', function () {
-                isHoveringPopup = false;
-                isHoveringMarker = false;
+            // Popup Events (we need to wait for it to be added to DOM or attach globally?)
+            // Mapbox popup adds to DOM when opened.
+            marker.on('dragstart', () => {}); // Dummy
+            
+            // Since Mapbox creates/destroys popup DOM on open/close, we need to attach events when it opens.
+            // Mapbox doesn't have a direct 'popupopen' event on the marker, but we can check state or 
+            // use the map event, but checking specific popup is harder.
+            // EASIER WAY: Use the popup's internal behavior or simply attach to the content string? 
+            // No, raw HTML string doesn't have events.
+            
+            // Solution: Observe popup opening.
+            const originalToggle = marker.togglePopup.bind(marker);
+            // Override or just let the map 'open' event handle it?
+            
+            // Simpler approach for Mapbox:
+            // The popup content is added to .mapboxgl-popup-content. 
+            // We can try to find it after it opens.
+            
+            // Or better: Create the popup DOM element ourselves? 
+            // mapboxgl.Popup().setDOMContent() is safer for events.
+            
+            const popupContentDiv = document.createElement('div');
+            popupContentDiv.innerHTML = content;
+            
+            popupContentDiv.addEventListener('mouseenter', () => {
+                isHoveringPopup = true;
                 if (timer) clearTimeout(timer);
             });
+            
+            popupContentDiv.addEventListener('mouseleave', () => {
+                isHoveringPopup = false;
+                timer = setTimeout(() => {
+                    if (!isHoveringPopup && !isHoveringMarker) {
+                        marker.getPopup().remove();
+                    }
+                }, 300);
+            });
+            
+            popup.setDOMContent(popupContentDiv);
 
             markers[locKey] = marker;
             group.forEach(item => {
                 markers[item.ip] = locKey; 
             });
 
-            bounds.extend([lat, lng]);
-            map.fitBounds(bounds, { padding: [50, 50], maxZoom: 10 });
+            bounds.extend([lng, lat]);
+            map.fitBounds(bounds, { padding: 100, maxZoom: 10 });
         }
 
         function zoomToIP(ip) {
@@ -1024,10 +1073,21 @@
                     toggleSidebar();
                 }
                 
-                map.flyTo(marker.getLatLng(), 8, { duration: 1.2 });
+                const lngLat = marker.getLngLat();
+                
+                map.flyTo({
+                    center: lngLat,
+                    zoom: 8,
+                    speed: 1.5,
+                    curve: 1
+                });
+                
+                // Open popup after flying
                 setTimeout(() => {
-                    marker.openPopup();
-                }, 1300);
+                    if (!marker.getPopup().isOpen()) {
+                        marker.togglePopup();
+                    }
+                }, 1500);
             }
         }
 
@@ -1069,14 +1129,14 @@
         async function startProcessing() {
             if (markers) {
                 Object.values(markers).forEach(val => {
-                    if (typeof val === 'object' && val.removeFrom) {
-                        val.removeFrom(map);
+                    if (typeof val === 'object' && val.remove) {
+                        val.remove();
                     }
                 });
             }
             markers = {};
             locationGroups = {};
-            bounds = L.latLngBounds();
+            bounds = new mapboxgl.LngLatBounds();
             
             const btn = document.getElementById('refresh-btn');
             const countDisplay = document.getElementById('status-count');
