@@ -35,6 +35,9 @@ class Settings:
 	port: int = _env_int("NETRECON_PORT", 5000)
 	flask_debug: bool = _env_bool("NETRECON_DEBUG", False)
 
+	# Logging
+	log_level: str = os.getenv("NETRECON_LOG_LEVEL", "INFO")
+
 	# GeoIP database paths
 	geoip_city_db: Path = Path(
 		os.getenv(
