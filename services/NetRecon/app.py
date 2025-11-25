@@ -1,5 +1,5 @@
 import os
-from flask import Flask, jsonify, request, g
+from flask import Flask, jsonify, request, g, Response
 from geoip_resolver import lookup_ip
 
 from datetime import datetime, timedelta
@@ -10,6 +10,7 @@ from logging_config import setup_logging
 from metrics import metrics
 import logging
 import time
+from prometheus_exporter import format_prometheus_metrics
 
 
 # Configure logging before creating the app
@@ -96,6 +97,18 @@ def metrics_endpoint():
 	"""Expose basic in-memory metrics for observability."""
 	snap = metrics.snapshot()
 	return jsonify(snap), 200
+
+@app.route("/metrics/prom")
+def metrics_prom_endpoint():
+	"""Expose metrics in Prometheus text exposition format."""
+	snap = metrics.snapshot()
+	body = format_prometheus_metrics(snap)
+	# Prometheus text format content type
+	return Response(
+		body,
+		status=200,
+		mimetype="text/plain; version=0.0.4; charset=utf-8",
+	)
 
 if __name__ == "__main__":
 	port = settings.port
